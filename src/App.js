@@ -3,6 +3,7 @@ import { Routes, Route, Link } from "react-router-dom";
 import "./App.css";
 
 import Debits from "./components/Debits";
+import Credits from "./components/Credits";
 
 import axios from "axios";
 
@@ -21,7 +22,7 @@ class App extends React.Component {
   async componentDidMount() {
     let debits = await axios.get("https://moj-api.herokuapp.com/debits")
     let credits = await axios.get("https://moj-api.herokuapp.com/credits")
-   
+
     //get data from API response
     debits = debits.data
     credits = credits.data
@@ -36,7 +37,7 @@ class App extends React.Component {
 
     let accountBalance = creditSum - debitSum;
     this.setState({debits, credits, accountBalance});
-  } 
+  }
 
 
   addDebit = (e) => {
@@ -53,20 +54,44 @@ class App extends React.Component {
     //formatting to match other dates
     const month = today.getMonth() + 1;
     const date = today.getFullYear().toString() + "-" + month.toString() + "-" + today.getDate().toString();
-    
+
     const newDebit = {description, amount, date}
     balance = balance - amount;
+    balance = Math.round(balance*1e2)/1e2;
     debits = [...debits, newDebit]
     this.setState({debits: debits, accountBalance: balance})
+  }
+
+  addCredit = (e) => {
+    //send to credits view via props
+    //updates state based off user input
+    e.preventDefault()
+    let { credits } = this.state
+    let balance = this.state.accountBalance;
+
+    const description  = e.target[0].value
+    const amount  = Number(e.target[1].value)
+    const today = new Date();
+
+    //formatting to match other dates
+    const month = today.getMonth() + 1;
+    const date = today.getFullYear().toString() + "-" + month.toString() + "-" + today.getDate().toString();
+
+    const newCredit = {description, amount, date}
+    balance = balance + amount;
+    balance = Math.round(balance*1e2)/1e2;
+    credits = [...credits, newCredit]
+    this.setState({credits: credits, accountBalance: balance})
   }
 
   render() {
     return (
       <div className="App">
-        <h1>Welcome to React Router!</h1>
+        <h1>Welcome!</h1>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/debits" element={<Debits addDebit={this.addDebit} debits={this.state.debits} />} />
+          <Route path="/credits" element={<Debits addCredit={this.addCredit} credits={this.state.credits} />} />
         </Routes>
         <h3>{this.state.accountBalance}</h3>
       </div>
@@ -80,11 +105,13 @@ class App extends React.Component {
 function Home() {
   return (
     <div>
-      <h2>Welcome to the homepage!</h2>
+      <h2>View your debits and credits!</h2>
       <Link to="/debits">Debits</Link>
+      <Link to="/debits">Credits</Link>
     </div>
   );
 }
 
 
 export default App;
+
