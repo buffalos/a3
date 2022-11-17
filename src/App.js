@@ -107,11 +107,10 @@ function Home() {
     <div>
       <h2>View your debits and credits!</h2>
       <Link to="/debits">Debits</Link>
-      <Link to="/debits">Credits</Link>
+      <Link to="/credits">Credits</Link>
     </div>
   );
 }
 
 
 export default App;
-
